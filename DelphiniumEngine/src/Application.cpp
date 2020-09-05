@@ -132,10 +132,16 @@ int main(void)
 	// We need to tell what the data means
 	// what the LAYOUT is
 	// Here, contains 3 points
-	float positions[6] = {
-		-0.5f, -0.5f,
-		 0.0f,  0.5f,
-		 0.5f, -0.5f
+	float positions[] = {
+		-0.5f, -0.5f, // 0
+		 0.5f,  -0.5f, // 1
+		 0.5f, 0.5f, // 2
+		 -0.5f, 0.5f, // 3
+	};
+
+	unsigned int indices[] = {
+		0, 1, 2,
+		2, 3, 0
 	};
 
 	unsigned int buffer; // 0 is usually an invalid state
@@ -149,7 +155,7 @@ int main(void)
 	glBindBuffer(GL_ARRAY_BUFFER, buffer); // Kind of like selecting a layer in a Digital Art Program
 	// Now we need to provide the buffer with data
 	// Can do it later or now since we know what the data is now
-	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(float), positions, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW);
 
 
 	glEnableVertexAttribArray(0);
@@ -162,6 +168,12 @@ int main(void)
 	// in the same vertex, so we must know how much data is taken up between the two positions
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0); // One Attribute in a Vertex (and at the moment, we only have one)
 
+
+	unsigned int ibo; // Index Buffer Object
+
+	glGenBuffers(1, &ibo); 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo); 	
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 
 	ShaderProgramSource source = ParseShader("Res/Shaders/Basic.shader");
 	std::cout << "VERTEX" << std::endl;
@@ -191,7 +203,10 @@ int main(void)
 		glVertex2f( 0.5f, -0.5f);
 		glEnd();*/
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// glDrawArrays(GL_TRIANGLES, 0, 6);
+		// These are the amount of indicies you are drawing
+		// nullptr because you already have binded to GL_ELEMENT_ARRAY
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
